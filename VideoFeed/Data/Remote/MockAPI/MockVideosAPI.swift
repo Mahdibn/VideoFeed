@@ -11,29 +11,45 @@ protocol VideosAPI {
     func fetchVideos(page: Int) async throws -> [VideoDTO]
 }
 
-class MockVideosAPI: VideosAPI {
-    private var requestCount = 0
+final class MockVideosAPI: VideosAPI {
+    private var allVideos: [VideoDTO] = []
+    private let videosPerPage = 5
+    private var numberOfCalls = 0
 
-    func fetchVideos(page: Int) async throws -> [VideoDTO] {
-        requestCount += 1
-        if requestCount % 3 == 0 {
-            throw URLError(.badServerResponse)
-        }
-
-        return (1...15).map {
-            VideoDTO(
-                id: UUID().uuidString,
-                creator: CreatorDTO(
-                    id: "creator\($0)",
-                    name: "Creator \($0)",
-                    avatarURL: "https://picsum.photos/100"
-                ),
-                shortVideoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                fullVideoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                description: "Description \($0)",
-                likes: Int.random(in: 0...2000),
+    init() {
+        for i in 0..<100 {
+            // Simulate 100 videos
+            let creator = CreatorDTO(id: "user\(i)", name: "Creator \(i)", avatarURL: "https://via.placeholder.com/150")
+            let video = VideoDTO(
+                id: "\(i)",
+                creator: creator,
+                shortVideoURL: "https://videos.pexels.com/video-files/5538262/5538262-hd_1920_1080_25fps.mp4",
+                fullVideoURL: "https://videos.pexels.com/video-files/5538262/5538262-hd_1920_1080_25fps.mp4",
+                description: "This is video number \(i) ",
+                likes: Int.random(in: 0...1000),
                 comments: Int.random(in: 0...200)
             )
+            allVideos.append(video)
         }
+    }
+
+    func fetchVideos(page: Int) async throws -> [VideoDTO] {
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        numberOfCalls += 1
+        // Simulate network errors for every 3rd request
+        if numberOfCalls % 3 == 0 {
+            print("Simulating network error for page \(page)")
+            throw APIError.simulationError
+        }
+
+        let startIndex = page * videosPerPage
+        let endIndex = min(startIndex + videosPerPage, allVideos.count)
+
+        guard startIndex < allVideos.count else {
+            return [] // There is no more videos
+        }
+
+        return Array(allVideos[startIndex..<endIndex])
     }
 }

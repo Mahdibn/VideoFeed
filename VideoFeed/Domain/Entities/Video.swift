@@ -7,13 +7,20 @@
 
 import Foundation
 
-struct Video: Identifiable {
+struct Video: Identifiable, Equatable {
     let id: String
     let creator: Creator
     let shortVideoURL: URL
     let fullVideoURL: URL
     let description: String
-    var likes: Int
-    var comments: Int
-    var isLiked: Bool = false
+    let likes: Int
+    let comments: Int
+
+    static func == (lhs: Video, rhs: Video) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
