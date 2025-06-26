@@ -18,6 +18,18 @@ final class FeedViewModel: ObservableObject {
 
     private let useCase: FetchVideosUseCase
 
+    var state: ViewState {
+        if isLoading && videos.isEmpty {
+            return .loading
+        } else if let error = errorMessage {
+            return .error(error)
+        } else if videos.isEmpty {
+            return .empty
+        } else {
+            return .loaded
+        }
+    }
+
     // MARK: - Init
     init(useCase: FetchVideosUseCase = FetchVideosUseCaseImpl()) {
         self.useCase = useCase
