@@ -19,7 +19,7 @@ final class MockVideosAPI: VideosAPI {
     init() {
         for i in 0..<100 {
             // Simulate 100 videos
-            let creator = CreatorDTO(id: "user\(i)", name: "Creator \(i)", avatarURL: "https://via.placeholder.com/150")
+            let creator = CreatorDTO(id: "user\(i)", name: "Creator \(i)", avatarURL: "https://picsum.photos/100")
             let video = VideoDTO(
                 id: "\(i)",
                 creator: creator,
